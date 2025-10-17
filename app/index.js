@@ -40,6 +40,23 @@ app.get("/movies", async (_req, res) => {
   }
 });
 
+app.get("/movies/:filter", async (req, res) => {
+  const { filter } = req.params;
+
+  const sql = `SELECT * FROM movies WHERE title LIKE ? LIMIT 50;`;
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const [rows] = await conn.query(sql, [`%${filter}%`]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: String(err) });
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Movies API (Node) running on http://0.0.0.0:${PORT}`);
 });
