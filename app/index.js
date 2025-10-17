@@ -25,6 +25,21 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
+app.get("/movies/poster", async (_req, res) => {
+  const sql = `SELECT id, title, poster FROM movie_poster LIMIT 50;`;
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const [rows] = await conn.query(sql);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: String(err) });
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
 app.get("/movies", async (_req, res) => {
   const sql = `SELECT * FROM movies limit 50;`;
   let conn;
